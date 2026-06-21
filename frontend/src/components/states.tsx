@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { AlertTriangle, Inbox, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -29,18 +30,24 @@ export function LoadingState({ label }: { label?: string }) {
  */
 export function useErrorMessage() {
   const t = useTranslations("errors");
-  return (err: unknown): string => {
-    if (err instanceof ApiError) {
-      if (err.code === "NETWORK" || err.status === 0) return t("network");
-      // The backend localizes error.message; show it. Guard against a bare
-      // machine code leaking through.
-      if (err.message && !/^[a-z_]+$/.test(err.message)) return err.message;
-      if (err.code) return t.has(`code.${err.code}`) ? t(`code.${err.code}`) : t("generic");
+  // Memoized so the returned function has a stable identity across renders.
+  // Without this, any caller that puts it in a useCallback/useEffect dependency
+  // array (e.g. the checkout loader) re-runs every render and loops forever.
+  return useCallback(
+    (err: unknown): string => {
+      if (err instanceof ApiError) {
+        if (err.code === "NETWORK" || err.status === 0) return t("network");
+        // The backend localizes error.message; show it. Guard against a bare
+        // machine code leaking through.
+        if (err.message && !/^[a-z_]+$/.test(err.message)) return err.message;
+        if (err.code) return t.has(`code.${err.code}`) ? t(`code.${err.code}`) : t("generic");
+        return t("generic");
+      }
+      if (err instanceof Error && err.message) return err.message;
       return t("generic");
-    }
-    if (err instanceof Error && err.message) return err.message;
-    return t("generic");
-  };
+    },
+    [t],
+  );
 }
 
 /** A centered error block with an optional retry. */
