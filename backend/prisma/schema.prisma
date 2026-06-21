@@ -1,0 +1,210 @@
+// Reservo — Prisma schema. Implements SPEC §2 exactly.
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+  REFUNDED
+}
+
+enum PaymentProviderType {
+  SIMULATED
+  MERCADOPAGO
+}
+
+enum PaymentMethod {
+  PIX
+  CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  REFUNDED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+
+  provider      Provider?
+  bookings      Booking[]
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+}
+
+model Provider {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  slug      String   @unique
+  name      String
+  bio       String   @default("")
+  category  String   @default("")
+  timezone  String   @default("America/Sao_Paulo")
+  city      String   @default("")
+  region    String   @default("")
+  country   String   @default("")
+  whatsapp  String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services          Service[]
+  availabilityRules AvailabilityRule[]
+  timeBlocks        TimeBlock[]
+  bookings          Booking[]
+
+  @@index([slug])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  providerId  String
+  name        String
+  description String?
+  durationMin Int
+  priceCents  Int
+  currency    String   @default("BRL")
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  provider Provider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@index([providerId])
+}
+
+model AvailabilityRule {
+  id          String @id @default(cuid())
+  providerId  String
+  weekday     Int // 0-6, 0 = Sunday
+  startMinute Int // minutes from local midnight, e.g. 540 = 09:00
+  endMinute   Int // e.g. 1020 = 17:00
+
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+}
+
+model TimeBlock {
+  id         String   @id @default(cuid())
+  providerId String
+  startsAt   DateTime
+  endsAt     DateTime
+  reason     String?
+
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId, startsAt])
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  providerId    String
+  serviceId     String
+  customerId    String?
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  startsAt      DateTime
+  endsAt        DateTime
+  status        BookingStatus @default(PENDING_PAYMENT)
+  priceCents    Int
+  currency      String        @default("BRL")
+  holdExpiresAt DateTime?
+  publicToken   String        @unique
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  service  Service  @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  customer User?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  payment  Payment?
+
+  @@index([providerId, startsAt])
+  @@index([status])
+  @@index([customerEmail])
+  @@index([publicToken])
+}
+
+model Payment {
+  id          String              @id @default(cuid())
+  bookingId   String              @unique
+  provider    PaymentProviderType
+  method      PaymentMethod?
+  externalId  String?
+  status      PaymentStatus       @default(PENDING)
+  amountCents Int
+  currency    String              @default("BRL")
+  checkoutUrl String?
+  pixQr       String?
+  raw         Json?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model WebhookEvent {
+  id          String              @id @default(cuid())
+  provider    PaymentProviderType
+  externalId  String
+  type        String
+  payload     Json
+  processedAt DateTime            @default(now())
+
+  @@unique([provider, externalId])
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  family    String
+  revokedAt DateTime?
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([family])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+}
