@@ -59,7 +59,10 @@ export async function simulatePayment(
 
   const result = await processPaymentWebhook({
     provider: PaymentProviderType.SIMULATED,
-    externalId: booking.payment.externalId,
+    // Ledger key carries the outcome so reject-then-approve are distinct rows;
+    // payment lookup uses the stable base externalId stored on the Payment.
+    externalId: `${booking.payment.externalId}_${body.outcome}`,
+    paymentExternalId: booking.payment.externalId,
     status,
     method: method ?? null,
     type: `simulated.${body.outcome}`,
@@ -104,6 +107,7 @@ export async function paymentsWebhook(
   const result = await processPaymentWebhook({
     provider: provider.kind,
     externalId: event.externalId,
+    paymentExternalId: event.paymentExternalId,
     status: event.status,
     method: event.method ?? null,
     type: event.type,

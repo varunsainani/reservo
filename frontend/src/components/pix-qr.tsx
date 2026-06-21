@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 // A mock Pix QR. The real backend returns a `pixQr` payload string; for the
 // simulated provider it's a mock value, so we render a deterministic QR-like
 // pattern derived from it (purely decorative — it is NOT a scannable code).
@@ -13,6 +15,7 @@ function hashString(s: string): number {
 }
 
 export function PixQrMock({ value, size = 168 }: { value: string; size?: number }) {
+  const t = useTranslations("checkout");
   const grid = 21; // classic QR module count
   const cell = size / grid;
   const seed = hashString(value || "reservo-pix");
@@ -62,7 +65,7 @@ export function PixQrMock({ value, size = 168 }: { value: string; size?: number 
       viewBox={`0 0 ${size} ${size}`}
       className="rounded-lg bg-white p-2 shadow-sm"
       role="img"
-      aria-label="Pix QR (mock)"
+      aria-label={t("pixQrAlt")}
     >
       {cells.map((m, i) => (
         <rect key={i} x={m.x} y={m.y} width={cell} height={cell} fill="#0a0a0a" />

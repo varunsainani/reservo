@@ -70,6 +70,9 @@ export function rateLimit(opts: {
 export const authLimiter = rateLimit({ windowMs: 60_000, max: 20, bucket: "auth" });
 export const searchLimiter = rateLimit({ windowMs: 60_000, max: 120, bucket: "search" });
 export const bookingLimiter = rateLimit({ windowMs: 60_000, max: 40, bucket: "booking" });
+// Loose guard on the unauthenticated/secret-guarded webhook + cron endpoints —
+// abuse protection without throttling legitimate provider callbacks/cron pings.
+export const webhookLimiter = rateLimit({ windowMs: 60_000, max: 240, bucket: "webhook" });
 
 /** Reset all counters — for tests only. */
 export function __resetRateLimits(): void {

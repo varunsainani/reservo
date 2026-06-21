@@ -39,22 +39,43 @@ export class SimulatedProvider implements PaymentProvider {
       throw new WebhookAuthError();
     }
 
-    const externalId =
+    const baseExternalId =
       typeof body.externalId === "string" ? body.externalId : undefined;
-    if (!externalId) return null;
+    if (!baseExternalId) return null;
 
     const status = mapOutcome(body.outcome ?? body.status);
     if (!status) return null;
 
     const method = mapMethod(body.method);
 
+    // The ledger (idempotency) key includes the outcome so a later approval
+    // after a rejection is a DISTINCT WebhookEvent row and IS applied, while
+    // replaying the SAME outcome stays idempotent. The payment lookup still uses
+    // the stable base id stored on Payment.externalId.
+    const ledgerExternalId = `${baseExternalId}_${outcomeToken(status)}`;
+
     return {
-      externalId,
+      externalId: ledgerExternalId,
+      paymentExternalId: baseExternalId,
       status,
       method,
       type: typeof body.type === "string" ? body.type : "payment.updated",
       raw: body,
     };
+  }
+}
+
+/** Stable per-outcome token for the simulated ledger key. */
+function outcomeToken(status: PaymentStatus): string {
+  switch (status) {
+    case PaymentStatus.APPROVED:
+      return "approved";
+    case PaymentStatus.REJECTED:
+      return "rejected";
+    case PaymentStatus.EXPIRED:
+      return "expired";
+    default:
+      return "updated";
   }
 }
 

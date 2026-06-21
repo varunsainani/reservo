@@ -12,7 +12,21 @@ import { DEFAULT_LOCALE, type Locale } from "../i18n";
 
 export interface ProcessWebhookInput {
   provider: PaymentProviderType;
+  /**
+   * Idempotency / ledger key written to WebhookEvent (unique per
+   * provider+externalId). For the SIMULATED provider this includes the outcome
+   * (e.g. `sim_<paymentId>_approved`) so a later approval after a rejection is a
+   * DISTINCT ledger row and IS applied, while replaying the same outcome stays a
+   * no-op.
+   */
   externalId: string;
+  /**
+   * Key used to locate the target Payment.externalId. Defaults to `externalId`
+   * when omitted (MercadoPago, where the two coincide). The SIMULATED provider
+   * passes the stable base id here so the outcome-suffixed ledger key never
+   * breaks the payment lookup.
+   */
+  paymentExternalId?: string;
   status: PaymentStatus;
   method?: PaymentMethod | null;
   type: string;
@@ -57,9 +71,11 @@ export async function processPaymentWebhook(
     throw e;
   }
 
-  // 2) Find the payment this event targets.
+  // 2) Find the payment this event targets. The lookup key may differ from the
+  //    ledger key (SIMULATED suffixes the outcome onto the ledger key only).
+  const lookupExternalId = input.paymentExternalId ?? input.externalId;
   const payment = await prisma.payment.findFirst({
-    where: { provider: input.provider, externalId: input.externalId },
+    where: { provider: input.provider, externalId: lookupExternalId },
     include: { booking: true },
   });
 
@@ -79,16 +95,30 @@ export async function processPaymentWebhook(
     }
     // Only confirm a booking still awaiting payment.
     if (payment.booking.status !== BookingStatus.PENDING_PAYMENT) {
-      // Booking was cancelled/expired meanwhile: record payment status, no confirm.
-      await prisma.payment.update({
-        where: { id: payment.id },
-        data: {
-          status: PaymentStatus.APPROVED,
-          method: input.method ?? payment.method,
-          raw: toJson(input.raw),
-        },
+      // The hold is gone (booking EXPIRED/CANCELLED meanwhile): the slot can't be
+      // honoured, so do NOT mark the payment APPROVED (that would inflate revenue
+      // aggregates, which sum APPROVED payments) and do NOT confirm. Settle the
+      // payment as EXPIRED and leave an audit trail.
+      await prisma.$transaction(async (tx) => {
+        await tx.payment.update({
+          where: { id: payment.id },
+          data: {
+            status: PaymentStatus.EXPIRED,
+            method: input.method ?? payment.method,
+            raw: toJson(input.raw),
+          },
+        });
+        await audit("payment.approved_after_hold_lost", {
+          actorId: payment.booking.customerId,
+          meta: {
+            bookingId: payment.bookingId,
+            paymentId: payment.id,
+            bookingStatus: payment.booking.status,
+          },
+          db: tx,
+        });
       });
-      return { ok: true, duplicate: false, applied: "noop" };
+      return { ok: true, duplicate: false, applied: "expired" };
     }
 
     const confirmed = await prisma.$transaction(async (tx) => {

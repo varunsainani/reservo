@@ -1,6 +1,10 @@
+import type { Metadata } from "next";
 import { CheckoutClient } from "./checkout-client";
 
 export const dynamic = "force-dynamic";
+
+// Private, tokenised page — never index or follow.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function CheckoutPage({
   params,

@@ -14,7 +14,14 @@ export interface CheckoutResult {
 }
 
 export interface VerifiedWebhook {
+  /** Idempotency / ledger key (unique per provider+externalId). */
   externalId: string;
+  /**
+   * Key used to locate the Payment row. Defaults to `externalId` when omitted.
+   * The SIMULATED provider sets this to the stable base id so the
+   * outcome-suffixed ledger key never breaks the payment lookup.
+   */
+  paymentExternalId?: string;
   status: PaymentStatus;
   method?: PaymentMethod | null;
   type: string;

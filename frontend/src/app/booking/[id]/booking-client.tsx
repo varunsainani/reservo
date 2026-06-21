@@ -28,6 +28,13 @@ import type { BookingPublic, BookingStatus } from "@/lib/api-types";
 const TERMINAL: BookingStatus[] = ["CONFIRMED", "CANCELLED", "EXPIRED", "REFUNDED"];
 const POLL_MS = 2000;
 
+// Poll-terminal: a booking reached a terminal status, OR the payment was
+// rejected (the booking stays PENDING_PAYMENT but the UI is the rejected/retry
+// state, so there's nothing left to poll for).
+function isPollTerminal(b: BookingPublic): boolean {
+  return TERMINAL.includes(b.status) || b.payment?.status === "REJECTED";
+}
+
 export function BookingClient({ id, token }: { id: string; token: string }) {
   const t = useTranslations("booking");
   const tc = useTranslations("common");
@@ -47,8 +54,9 @@ export function BookingClient({ id, token }: { id: string; token: string }) {
         setBooking(b);
         setError(null);
         if (initial) setLoading(false);
-        // Stop polling once the booking reaches a terminal state.
-        if (TERMINAL.includes(b.status)) stopped.current = true;
+        // Stop polling once the booking reaches a terminal state (or the
+        // payment was rejected, which leaves it PENDING_PAYMENT forever).
+        if (isPollTerminal(b)) stopped.current = true;
         return b.status;
       } catch (e) {
         if (initial) {
@@ -83,11 +91,13 @@ export function BookingClient({ id, token }: { id: string; token: string }) {
       }
     };
 
-    // Initial fetch, then begin polling if not terminal.
+    // Initial fetch, then begin polling if not terminal. fetchOnce sets
+    // stopped.current via isPollTerminal (covers a rejected payment that keeps
+    // the booking PENDING_PAYMENT), so honour that flag here too.
     (async () => {
       const status = await fetchOnce(true);
       if (!active) return;
-      if (status && !TERMINAL.includes(status)) {
+      if (status && !stopped.current && !TERMINAL.includes(status)) {
         timer.current = setTimeout(tick, POLL_MS);
       }
     })();
@@ -309,12 +319,18 @@ function DetailRow({
 }
 
 function WhatsAppLink({ booking, label }: { booking: BookingPublic; label: string }) {
+  const t = useTranslations("booking");
   const fmt = useFormat();
   const phone = (booking.provider.whatsapp || "").replace(/\D/g, "");
   if (!phone) return null;
   const when = fmt.inTz(booking.startsAt, booking.provider.timezone);
   const text = encodeURIComponent(
-    `${booking.customerName} — ${booking.service.name} @ ${booking.provider.name} (${when})`,
+    t("waText", {
+      customer: booking.customerName,
+      service: booking.service.name,
+      provider: booking.provider.name,
+      when,
+    }),
   );
   return (
     <a href={`https://wa.me/${phone}?text=${text}`} target="_blank" rel="noopener noreferrer" className="block">

@@ -160,7 +160,8 @@
     "alreadyPaidTitle": "Already handled",
     "alreadyPaidBody": "This booking is no longer awaiting payment.",
     "goToBooking": "View booking",
-    "demoNote": "Demo mode: \"Pay now\" approves the payment via the same webhook a real provider would call."
+    "demoNote": "Demo mode: \"Pay now\" approves the payment via the same webhook a real provider would call.",
+    "pixQrAlt": "Pix QR code (sample)"
   },
   "booking": {
     "waitingTitle": "Waiting for payment",
@@ -191,7 +192,8 @@
     "notFoundTitle": "Booking not found",
     "notFoundBody": "This booking link is invalid or has expired.",
     "live": "Live",
-    "addToCalendar": "Add to calendar"
+    "addToCalendar": "Add to calendar",
+    "waText": "{customer} — {service} with {provider} ({when})"
   },
   "auth": {
     "loginTitle": "Welcome back",

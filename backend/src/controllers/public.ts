@@ -14,7 +14,7 @@ import {
 import { parsePagination, parseStr } from "../lib/query";
 import { availabilityQuerySchema, createBookingSchema } from "../lib/validation";
 import { computeDayAvailability, validateSlot } from "../services/availability";
-import { isPast } from "../lib/slots";
+import { isPast, overlaps } from "../lib/slots";
 import { getPaymentProvider } from "../payments";
 
 // GET /api/providers
@@ -269,6 +269,63 @@ async function createBookingTx(input: {
   providerKind: import("@prisma/client").PaymentProviderType;
 }) {
   return prisma.$transaction(async (tx) => {
+    const now = new Date();
+
+    // 1) Expire elapsed holds for this provider so the write path matches the
+    //    lazy-expiry read path: a PENDING_PAYMENT booking past its hold no longer
+    //    occupies its slot (and its payment is settled EXPIRED).
+    const elapsed = await tx.booking.findMany({
+      where: {
+        providerId: input.providerId,
+        status: BookingStatus.PENDING_PAYMENT,
+        holdExpiresAt: { lt: now },
+      },
+      select: { id: true },
+    });
+    if (elapsed.length > 0) {
+      const elapsedIds = elapsed.map((b) => b.id);
+      await tx.booking.updateMany({
+        where: { id: { in: elapsedIds } },
+        data: { status: BookingStatus.EXPIRED },
+      });
+      await tx.payment.updateMany({
+        where: {
+          bookingId: { in: elapsedIds },
+          status: PaymentStatus.PENDING,
+        },
+        data: { status: PaymentStatus.EXPIRED },
+      });
+    }
+
+    // 2) Interval-overlap occupancy check. The partial unique index only guards
+    //    the exact same start instant; this catches a *different-duration*
+    //    booking that overlaps the requested window. Active = CONFIRMED, or
+    //    PENDING_PAYMENT with a hold that is null/in the future.
+    const active = await tx.booking.findMany({
+      where: {
+        providerId: input.providerId,
+        // Cheap pre-filter: only rows that could possibly overlap the window.
+        startsAt: { lt: input.endsAt },
+        endsAt: { gt: input.startsAt },
+        OR: [
+          { status: BookingStatus.CONFIRMED },
+          {
+            status: BookingStatus.PENDING_PAYMENT,
+            OR: [{ holdExpiresAt: null }, { holdExpiresAt: { gt: now } }],
+          },
+        ],
+      },
+      select: { startsAt: true, endsAt: true },
+    });
+    const wantStart = input.startsAt.getTime();
+    const wantEnd = input.endsAt.getTime();
+    const clash = active.some((b) =>
+      overlaps(wantStart, wantEnd, b.startsAt.getTime(), b.endsAt.getTime())
+    );
+    if (clash) {
+      throw httpError(409, "errors.booking.slotTaken", { code: "SLOT_TAKEN" });
+    }
+
     const booking = await tx.booking.create({
       data: {
         providerId: input.providerId,

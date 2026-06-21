@@ -138,7 +138,7 @@ export function CheckoutClient({ id, token }: { id: string; token: string }) {
                       <Button
                         variant="outline"
                         size="icon"
-                        aria-label="copy"
+                        aria-label={tCommon("copy")}
                         onClick={copyPix}
                       >
                         {copied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}

@@ -160,7 +160,8 @@
     "alreadyPaidTitle": "Ya procesado",
     "alreadyPaidBody": "Esta reserva ya no está esperando pago.",
     "goToBooking": "Ver reserva",
-    "demoNote": "Modo demostración: \"Pagar ahora\" aprueba el pago mediante el mismo webhook que llamaría un proveedor real."
+    "demoNote": "Modo demostración: \"Pagar ahora\" aprueba el pago mediante el mismo webhook que llamaría un proveedor real.",
+    "pixQrAlt": "Código QR Pix (ejemplo)"
   },
   "booking": {
     "waitingTitle": "Esperando el pago",
@@ -191,7 +192,8 @@
     "notFoundTitle": "Reserva no encontrada",
     "notFoundBody": "Este enlace de reserva no es válido o ha expirado.",
     "live": "En vivo",
-    "addToCalendar": "Agregar a la agenda"
+    "addToCalendar": "Agregar a la agenda",
+    "waText": "{customer} — {service} con {provider} ({when})"
   },
   "auth": {
     "loginTitle": "Bienvenido de nuevo",

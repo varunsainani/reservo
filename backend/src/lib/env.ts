@@ -68,6 +68,29 @@ const PAYMENT_PROVIDER = (
     : "simulated"
 ) as "simulated" | "mercadopago";
 
+// Webhook/cron secrets: REQUIRED to be real in production, fail-fast there.
+// Mirrors the JWT_ACCESS_SECRET prod guard. Dev defaults are kept for dev.
+const DEV_SIMULATED_WEBHOOK_TOKEN = "dev-simulated-token";
+const DEV_CRON_SECRET = "dev-cron-secret";
+
+const rawSimulatedToken = asString("SIMULATED_WEBHOOK_TOKEN");
+if (
+  isProd &&
+  PAYMENT_PROVIDER === "simulated" &&
+  (!rawSimulatedToken || rawSimulatedToken === DEV_SIMULATED_WEBHOOK_TOKEN)
+) {
+  throw new Error(
+    "SIMULATED_WEBHOOK_TOKEN must be set to a real value in production (not the dev default) when PAYMENT_PROVIDER=simulated."
+  );
+}
+
+const rawCronSecret = asString("CRON_SECRET");
+if (isProd && (!rawCronSecret || rawCronSecret === DEV_CRON_SECRET)) {
+  throw new Error(
+    "CRON_SECRET must be set to a real value in production (not the dev default)."
+  );
+}
+
 export const env = {
   NODE_ENV,
   isProd,
@@ -80,7 +103,7 @@ export const env = {
   ACCESS_TOKEN_TTL: ACCESS_TOKEN_TTL.trim(),
 
   PAYMENT_PROVIDER,
-  SIMULATED_WEBHOOK_TOKEN: asString("SIMULATED_WEBHOOK_TOKEN", "dev-simulated-token"),
+  SIMULATED_WEBHOOK_TOKEN: rawSimulatedToken || DEV_SIMULATED_WEBHOOK_TOKEN,
   HOLD_MINUTES: asInt("HOLD_MINUTES", 15),
 
   MERCADOPAGO_ACCESS_TOKEN: asString("MERCADOPAGO_ACCESS_TOKEN"),
@@ -88,7 +111,7 @@ export const env = {
 
   APP_URL,
   CORS_ORIGIN: corsOrigins,
-  CRON_SECRET: asString("CRON_SECRET", "dev-cron-secret"),
+  CRON_SECRET: rawCronSecret || DEV_CRON_SECRET,
 
   // Optional email
   BREVO_API_KEY: asString("BREVO_API_KEY"),

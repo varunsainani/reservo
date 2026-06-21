@@ -1,4 +1,15 @@
 // Reservo — Prisma schema. Implements SPEC §2 exactly.
+//
+// SCHEMA DRIFT WARNING — out-of-band indexes:
+//   * The partial unique index `booking_active_slot_uq` on Booking
+//     ("providerId","startsAt") WHERE status IN ('PENDING_PAYMENT','CONFIRMED')
+//     CANNOT be expressed in this schema (Prisma has no partial-unique support).
+//     It lives in `prisma/constraints.sql`.
+//   A BARE `prisma db push` DROPS `booking_active_slot_uq` (it is not in this
+//   schema), removing the exact-start double-booking backstop. ALWAYS use
+//   `npm run prisma:push` (db push + db:constraints), which re-applies it.
+//   The supplementary index in `prisma/add-indexes.sql` is idempotent and safe
+//   to re-apply.
 
 generator client {
   provider      = "prisma-client-js"
@@ -149,8 +160,8 @@ model Booking {
 
   @@index([providerId, startsAt])
   @@index([status])
+  @@index([status, holdExpiresAt]) // cron expiry scan: PENDING_PAYMENT + holdExpiresAt < now
   @@index([customerEmail])
-  @@index([publicToken])
 }
 
 model Payment {

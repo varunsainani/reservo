@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { asyncHandler } from "../lib/async-handler";
 import { requireAuth, requireRole } from "../middleware/auth";
-import { authLimiter, searchLimiter, bookingLimiter } from "../middleware/rate-limit";
+import {
+  authLimiter,
+  searchLimiter,
+  bookingLimiter,
+  webhookLimiter,
+} from "../middleware/rate-limit";
 import * as auth from "../controllers/auth";
 import * as pub from "../controllers/public";
 import * as payments from "../controllers/payments";
@@ -32,8 +37,8 @@ export function buildRouter(): Router {
 
   // ── Payments / webhook / cron ──────────────────────────────────────────
   r.post("/payments/simulate", bookingLimiter, asyncHandler(payments.simulatePayment));
-  r.post("/webhooks/payments", asyncHandler(payments.paymentsWebhook));
-  r.post("/cron/release-expired", asyncHandler(payments.releaseExpired));
+  r.post("/webhooks/payments", webhookLimiter, asyncHandler(payments.paymentsWebhook));
+  r.post("/cron/release-expired", webhookLimiter, asyncHandler(payments.releaseExpired));
 
   // ── Customer area (role CUSTOMER) ──────────────────────────────────────
   r.get(

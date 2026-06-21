@@ -35,7 +35,11 @@ function luxonToJsWeekday(luxonWeekday: number): number {
   return luxonWeekday % 7; // 7(Sun)->0, 1(Mon)->1 ... 6(Sat)->6
 }
 
-function overlaps(
+/**
+ * Half-open interval overlap test: [aStart, aEnd) overlaps [bStart, bEnd).
+ * Accepts numbers (epoch ms) so callers can pass Date.getTime() directly.
+ */
+export function overlaps(
   aStart: number,
   aEnd: number,
   bStart: number,

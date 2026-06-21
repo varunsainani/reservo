@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,7 @@ export function Modal({
   children: React.ReactNode;
   className?: string;
 }) {
+  const tc = useTranslations("common");
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -51,7 +53,7 @@ export function Modal({
               type="button"
               onClick={onClose}
               className="text-muted-foreground hover:text-foreground"
-              aria-label="close"
+              aria-label={tc("close")}
             >
               <X className="h-5 w-5" />
             </button>
