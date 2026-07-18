@@ -27,7 +27,7 @@ import {
 import { useFormat } from "@/lib/format";
 import type { Service, Currency } from "@/lib/api-types";
 
-const CURRENCIES: Currency[] = ["BRL", "ARS", "MXN", "USD"];
+const CURRENCIES: Currency[] = ["USD", "BRL", "ARS", "MXN"];
 
 interface FormState {
   id?: string;
@@ -45,7 +45,7 @@ const emptyForm: FormState = {
   description: "",
   durationMin: "30",
   price: "",
-  currency: "BRL",
+  currency: "USD",
   active: true,
   sortOrder: "0",
 };

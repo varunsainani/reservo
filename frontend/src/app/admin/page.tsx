@@ -61,7 +61,7 @@ function AdminInner() {
         <StatCard label={t("statConfirmed")} value={b.confirmed} icon={<CheckCircle2 className="h-5 w-5" />} />
         <StatCard
           label={t("statRevenue")}
-          value={fmt.money(data.revenueCents, "BRL")}
+          value={fmt.money(data.revenueCents, "USD")}
           icon={<DollarSign className="h-5 w-5" />}
         />
       </div>
@@ -128,7 +128,7 @@ function AdminInner() {
                       {p.name}
                     </Link>
                     <span className="shrink-0 text-muted-foreground">
-                      {fmt.money(p.revenueCents, "BRL")}
+                      {fmt.money(p.revenueCents, "USD")}
                     </span>
                   </li>
                 ))}

@@ -57,7 +57,7 @@ export function ProviderCard({ provider }: { provider: ProviderCardType }) {
           {typeof provider.priceFromCents === "number" && provider.priceFromCents > 0 && (
             <span className="font-medium text-foreground">
               {t("common.from")}{" "}
-              {fmt.money(provider.priceFromCents, provider.currency || "BRL")}
+              {fmt.money(provider.priceFromCents, provider.currency || "USD")}
             </span>
           )}
         </div>

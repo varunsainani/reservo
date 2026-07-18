@@ -108,7 +108,7 @@ function AdminProvidersInner() {
                     <td className="px-4 py-3 text-right">{p.serviceCount}</td>
                     <td className="px-4 py-3 text-right">{p.bookingCount}</td>
                     <td className="px-4 py-3 text-right font-medium text-foreground">
-                      {fmt.money(p.revenueCents, "BRL")}
+                      {fmt.money(p.revenueCents, "USD")}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link href={`/p/${p.slug}`} target="_blank" aria-label={p.name}>
@@ -150,7 +150,7 @@ function AdminProvidersInner() {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">{t("revenue")}</p>
-                    <p className="font-medium">{fmt.money(p.revenueCents, "BRL")}</p>
+                    <p className="font-medium">{fmt.money(p.revenueCents, "USD")}</p>
                   </div>
                 </div>
               </Card>

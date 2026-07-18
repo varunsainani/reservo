@@ -123,7 +123,7 @@ function DashboardInner() {
         />
         <StatCard
           label={t("statRevenue")}
-          value={fmt.money(stats?.revenueCents ?? 0, provider?.services[0]?.currency ?? "BRL")}
+          value={fmt.money(stats?.revenueCents ?? 0, provider?.services[0]?.currency ?? "USD")}
           hint={t("revenueNote")}
           icon={<DollarSign className="h-5 w-5" />}
         />

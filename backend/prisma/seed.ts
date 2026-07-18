@@ -39,7 +39,7 @@ async function main(): Promise<void> {
     data: {
       email: "customer@reservo.app",
       passwordHash,
-      name: "Camila Costa",
+      name: "Emily Carter",
       role: Role.CUSTOMER,
     },
   });
@@ -47,7 +47,7 @@ async function main(): Promise<void> {
     data: {
       email: "provider@reservo.app",
       passwordHash,
-      name: "Dra. Helena Martins",
+      name: "Dr. Helen Morris",
       role: Role.PROVIDER,
     },
   });
@@ -55,20 +55,20 @@ async function main(): Promise<void> {
     data: {
       email: "admin@reservo.app",
       passwordHash,
-      name: "Admin Reservo",
+      name: "Reservo Admin",
       role: Role.ADMIN,
     },
   });
 
   // Extra provider-owner users (one per additional provider).
   const owner2 = await prisma.user.create({
-    data: { email: "salon@reservo.app", passwordHash, name: "Bruno Alves", role: Role.PROVIDER },
+    data: { email: "salon@reservo.app", passwordHash, name: "Brian Foster", role: Role.PROVIDER },
   });
   const owner3 = await prisma.user.create({
-    data: { email: "consult@reservo.app", passwordHash, name: "Mariana Lopez", role: Role.PROVIDER },
+    data: { email: "consult@reservo.app", passwordHash, name: "Megan Lopez", role: Role.PROVIDER },
   });
   const owner4 = await prisma.user.create({
-    data: { email: "studio@reservo.app", passwordHash, name: "Carlos Núñez", role: Role.PROVIDER },
+    data: { email: "studio@reservo.app", passwordHash, name: "Charles Nolan", role: Role.PROVIDER },
   });
 
   // ── Weekly availability template helper (Mon–Fri 09:00–17:00 + Sat 09:00–13:00) ──
@@ -89,21 +89,21 @@ async function main(): Promise<void> {
   const p1 = await prisma.provider.create({
     data: {
       userId: providerUser.id,
-      slug: "clinica-bem-estar",
-      name: "Clínica Bem-Estar",
-      bio: "Atendimento clínico humanizado, consultas e exames de rotina no centro de São Paulo.",
+      slug: "wellbeing-clinic",
+      name: "Wellbeing Clinic",
+      bio: "Personalized primary care, consultations and routine checkups in the heart of Austin.",
       category: "health",
-      timezone: "America/Sao_Paulo",
-      city: "São Paulo",
-      region: "SP",
-      country: "BR",
-      whatsapp: "+5511999990001",
+      timezone: "America/Chicago",
+      city: "Austin",
+      region: "TX",
+      country: "US",
+      whatsapp: "+15125550001",
       avatarUrl: null,
       services: {
         create: [
-          { name: "Consulta clínica", description: "Avaliação geral de saúde.", durationMin: 30, priceCents: 18000, currency: "BRL", sortOrder: 0 },
-          { name: "Retorno", description: "Consulta de acompanhamento.", durationMin: 20, priceCents: 9000, currency: "BRL", sortOrder: 1 },
-          { name: "Checkup completo", description: "Avaliação ampliada com orientações.", durationMin: 60, priceCents: 35000, currency: "BRL", sortOrder: 2 },
+          { name: "General consultation", description: "Overall health assessment.", durationMin: 30, priceCents: 12000, currency: "USD", sortOrder: 0 },
+          { name: "Follow-up visit", description: "Follow-up consultation.", durationMin: 20, priceCents: 7000, currency: "USD", sortOrder: 1 },
+          { name: "Full checkup", description: "Extended assessment with guidance.", durationMin: 60, priceCents: 20000, currency: "USD", sortOrder: 2 },
         ],
       },
       availabilityRules: { create: weekdayTemplate({ saturday: true }) },
@@ -116,18 +116,18 @@ async function main(): Promise<void> {
       userId: owner2.id,
       slug: "studio-glow-salon",
       name: "Studio Glow",
-      bio: "Salão de beleza completo: cortes, coloração e tratamentos capilares.",
+      bio: "Full-service beauty salon: haircuts, coloring, and hair treatments.",
       category: "beauty",
-      timezone: "America/Sao_Paulo",
-      city: "Rio de Janeiro",
-      region: "RJ",
-      country: "BR",
-      whatsapp: "+5521999990002",
+      timezone: "America/New_York",
+      city: "Miami",
+      region: "FL",
+      country: "US",
+      whatsapp: "+13055550002",
       services: {
         create: [
-          { name: "Corte feminino", durationMin: 45, priceCents: 12000, currency: "BRL", sortOrder: 0 },
-          { name: "Coloração", durationMin: 90, priceCents: 28000, currency: "BRL", sortOrder: 1 },
-          { name: "Hidratação", durationMin: 30, priceCents: 8000, currency: "BRL", sortOrder: 2 },
+          { name: "Women's haircut", durationMin: 45, priceCents: 6000, currency: "USD", sortOrder: 0 },
+          { name: "Hair coloring", durationMin: 90, priceCents: 14000, currency: "USD", sortOrder: 1 },
+          { name: "Deep conditioning", durationMin: 30, priceCents: 4500, currency: "USD", sortOrder: 2 },
         ],
       },
       availabilityRules: { create: weekdayTemplate({ saturday: true }) },
@@ -140,17 +140,17 @@ async function main(): Promise<void> {
       userId: owner3.id,
       slug: "lopez-consulting",
       name: "Lopez Consulting",
-      bio: "Consultoría de negocios y estrategia para pymes en Latinoamérica.",
+      bio: "Business strategy consulting for small and mid-sized companies.",
       category: "consulting",
-      timezone: "America/Mexico_City",
-      city: "Ciudad de México",
-      region: "CDMX",
-      country: "MX",
-      whatsapp: "+5215555550003",
+      timezone: "America/New_York",
+      city: "New York",
+      region: "NY",
+      country: "US",
+      whatsapp: "+12125550003",
       services: {
         create: [
-          { name: "Sesión de estrategia", description: "Diagnóstico y plan de acción.", durationMin: 60, priceCents: 150000, currency: "MXN", sortOrder: 0 },
-          { name: "Mentoría exprés", durationMin: 30, priceCents: 80000, currency: "MXN", sortOrder: 1 },
+          { name: "Strategy session", description: "Diagnosis and action plan.", durationMin: 60, priceCents: 15000, currency: "USD", sortOrder: 0 },
+          { name: "Express mentoring", durationMin: 30, priceCents: 8000, currency: "USD", sortOrder: 1 },
         ],
       },
       availabilityRules: { create: weekdayTemplate() },
@@ -163,18 +163,18 @@ async function main(): Promise<void> {
       userId: owner4.id,
       slug: "core-fitness-studio",
       name: "Core Fitness Studio",
-      bio: "Entrenamiento personalizado y clases funcionales en Buenos Aires.",
+      bio: "Personalized training and functional classes in Denver.",
       category: "fitness",
-      timezone: "America/Argentina/Buenos_Aires",
-      city: "Buenos Aires",
-      region: "CABA",
-      country: "AR",
-      whatsapp: "+5491155550004",
+      timezone: "America/Denver",
+      city: "Denver",
+      region: "CO",
+      country: "US",
+      whatsapp: "+17205550004",
       services: {
         create: [
-          { name: "Entrenamiento personal", durationMin: 60, priceCents: 1200000, currency: "ARS", sortOrder: 0 },
-          { name: "Clase funcional", durationMin: 45, priceCents: 600000, currency: "ARS", sortOrder: 1 },
-          { name: "Evaluación física", durationMin: 30, priceCents: 400000, currency: "ARS", sortOrder: 2 },
+          { name: "Personal training", durationMin: 60, priceCents: 7000, currency: "USD", sortOrder: 0 },
+          { name: "Functional class", durationMin: 45, priceCents: 3000, currency: "USD", sortOrder: 1 },
+          { name: "Fitness assessment", durationMin: 30, priceCents: 4500, currency: "USD", sortOrder: 2 },
         ],
       },
       availabilityRules: { create: weekdayTemplate({ saturday: true }) },
@@ -193,7 +193,7 @@ async function main(): Promise<void> {
         providerId: p.id,
         startsAt: lunchDay.plus({ hours: 12 }).toUTC().toJSDate(),
         endsAt: lunchDay.plus({ hours: 13 }).toUTC().toJSDate(),
-        reason: "Almoço / pausa",
+        reason: "Lunch break",
       },
     });
   }
@@ -202,7 +202,7 @@ async function main(): Promise<void> {
       providerId: p1.id,
       startsAt: tomorrow.plus({ days: 2 }).setZone(p1.timezone).startOf("day").plus({ hours: 9 }).toUTC().toJSDate(),
       endsAt: tomorrow.plus({ days: 2 }).setZone(p1.timezone).startOf("day").plus({ hours: 17 }).toUTC().toJSDate(),
-      reason: "Feriado",
+      reason: "Holiday",
     },
   });
 
@@ -231,19 +231,19 @@ async function main(): Promise<void> {
 
   const seeds: BookingSeed[] = [
     // CONFIRMED — Pix
-    { provider: p1, serviceIdx: 0, dayOffset: 2, minute: 9 * 60, status: BookingStatus.CONFIRMED, method: PaymentMethod.PIX, paymentStatus: PaymentStatus.APPROVED, customerName: "Camila Costa", customerEmail: "customer@reservo.app", customerPhone: "+5511988887777", linkCustomer: true },
+    { provider: p1, serviceIdx: 0, dayOffset: 2, minute: 9 * 60, status: BookingStatus.CONFIRMED, method: PaymentMethod.PIX, paymentStatus: PaymentStatus.APPROVED, customerName: "Emily Carter", customerEmail: "customer@reservo.app", customerPhone: "+15125559999", linkCustomer: true },
     // CONFIRMED — Card
-    { provider: p1, serviceIdx: 2, dayOffset: 3, minute: 14 * 60, status: BookingStatus.CONFIRMED, method: PaymentMethod.CARD, paymentStatus: PaymentStatus.APPROVED, customerName: "Rafael Souza", customerEmail: "rafael@example.com" },
-    { provider: p2, serviceIdx: 0, dayOffset: 1, minute: 10 * 60, status: BookingStatus.CONFIRMED, method: PaymentMethod.PIX, paymentStatus: PaymentStatus.APPROVED, customerName: "Beatriz Lima", customerEmail: "bia@example.com" },
-    { provider: p3, serviceIdx: 0, dayOffset: 4, minute: 11 * 60, status: BookingStatus.CONFIRMED, method: PaymentMethod.CARD, paymentStatus: PaymentStatus.APPROVED, customerName: "Diego Ramírez", customerEmail: "diego@example.com" },
-    { provider: p4, serviceIdx: 1, dayOffset: 2, minute: 16 * 60, status: BookingStatus.CONFIRMED, method: PaymentMethod.PIX, paymentStatus: PaymentStatus.APPROVED, customerName: "Lucía Fernández", customerEmail: "lucia@example.com" },
+    { provider: p1, serviceIdx: 2, dayOffset: 3, minute: 14 * 60, status: BookingStatus.CONFIRMED, method: PaymentMethod.CARD, paymentStatus: PaymentStatus.APPROVED, customerName: "Michael Reed", customerEmail: "michael@example.com" },
+    { provider: p2, serviceIdx: 0, dayOffset: 1, minute: 10 * 60, status: BookingStatus.CONFIRMED, method: PaymentMethod.PIX, paymentStatus: PaymentStatus.APPROVED, customerName: "Sophie Bennett", customerEmail: "sophie@example.com" },
+    { provider: p3, serviceIdx: 0, dayOffset: 4, minute: 11 * 60, status: BookingStatus.CONFIRMED, method: PaymentMethod.CARD, paymentStatus: PaymentStatus.APPROVED, customerName: "Daniel Rivera", customerEmail: "daniel@example.com" },
+    { provider: p4, serviceIdx: 1, dayOffset: 2, minute: 16 * 60, status: BookingStatus.CONFIRMED, method: PaymentMethod.PIX, paymentStatus: PaymentStatus.APPROVED, customerName: "Laura Fields", customerEmail: "laura@example.com" },
     // PENDING_PAYMENT — fresh holds
-    { provider: p1, serviceIdx: 1, dayOffset: 5, minute: 15 * 60, status: BookingStatus.PENDING_PAYMENT, method: PaymentMethod.PIX, paymentStatus: PaymentStatus.PENDING, customerName: "João Pereira", customerEmail: "joao@example.com", holdMinutesFromNow: 15 },
-    { provider: p2, serviceIdx: 1, dayOffset: 6, minute: 11 * 60, status: BookingStatus.PENDING_PAYMENT, method: PaymentMethod.CARD, paymentStatus: PaymentStatus.PENDING, customerName: "Fernanda Dias", customerEmail: "fer@example.com", holdMinutesFromNow: 15 },
+    { provider: p1, serviceIdx: 1, dayOffset: 5, minute: 15 * 60, status: BookingStatus.PENDING_PAYMENT, method: PaymentMethod.PIX, paymentStatus: PaymentStatus.PENDING, customerName: "James Parker", customerEmail: "james@example.com", holdMinutesFromNow: 15 },
+    { provider: p2, serviceIdx: 1, dayOffset: 6, minute: 11 * 60, status: BookingStatus.PENDING_PAYMENT, method: PaymentMethod.CARD, paymentStatus: PaymentStatus.PENDING, customerName: "Fiona Dawson", customerEmail: "fiona@example.com", holdMinutesFromNow: 15 },
     // EXPIRED — old elapsed hold
-    { provider: p1, serviceIdx: 0, dayOffset: 7, minute: 10 * 60, status: BookingStatus.EXPIRED, method: PaymentMethod.PIX, paymentStatus: PaymentStatus.EXPIRED, customerName: "Pedro Gomes", customerEmail: "pedro@example.com", holdMinutesFromNow: -60 },
+    { provider: p1, serviceIdx: 0, dayOffset: 7, minute: 10 * 60, status: BookingStatus.EXPIRED, method: PaymentMethod.PIX, paymentStatus: PaymentStatus.EXPIRED, customerName: "Peter Grant", customerEmail: "peter@example.com", holdMinutesFromNow: -60 },
     // CANCELLED
-    { provider: p2, serviceIdx: 2, dayOffset: 8, minute: 14 * 60, status: BookingStatus.CANCELLED, method: PaymentMethod.PIX, paymentStatus: PaymentStatus.REJECTED, customerName: "Aline Rocha", customerEmail: "aline@example.com" },
+    { provider: p2, serviceIdx: 2, dayOffset: 8, minute: 14 * 60, status: BookingStatus.CANCELLED, method: PaymentMethod.PIX, paymentStatus: PaymentStatus.REJECTED, customerName: "Alice Rowe", customerEmail: "alice@example.com" },
   ];
 
   let bookingCount = 0;
