@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Reservo — Booking & instant Pix payments",
-    "description": "Let customers book a slot and pay with Pix or card. The booking confirms itself the moment the payment lands — no manual step."
+    "title": "Reservo — Booking with instant payment confirmation",
+    "description": "Let customers book a slot and pay by card or instant payment. The booking confirms itself the moment the payment lands — no manual step."
   },
   "common": {
     "loading": "Loading…",
@@ -67,9 +67,9 @@
     }
   },
   "home": {
-    "heroBadge": "Pix & card · instant confirmation",
+    "heroBadge": "Card & instant payment · auto-confirmed",
     "heroTitle": "Booking that pays for itself",
-    "heroSubtitle": "Your customers pick a free slot, pay with Pix or card, and the appointment confirms itself the second the payment lands. No back-and-forth, no manual approvals.",
+    "heroSubtitle": "Your customers pick a free slot, pay by card or instant payment, and the appointment confirms itself the second the payment lands. No back-and-forth, no manual approvals.",
     "heroCtaBrowse": "Browse providers",
     "heroCtaProvider": "List your business",
     "searchPlaceholder": "Search by name, city, or service",
@@ -79,14 +79,14 @@
     "feature1Title": "Real-time slots",
     "feature1Body": "Availability is computed live from each provider's weekly template, minus blocks and bookings — never a double-booking.",
     "feature2Title": "Instant payment",
-    "feature2Body": "A Pix QR or card checkout that confirms the booking automatically through a webhook the moment it's paid.",
+    "feature2Body": "A card or instant-payment checkout that confirms the booking automatically through a webhook the moment it's paid.",
     "feature3Title": "One calendar",
     "feature3Body": "Providers see every booking with its payment status and can cancel or reschedule in a click.",
     "howTitle": "How a booking works",
     "step1Title": "Pick a slot",
     "step1Body": "Choose a service and an open time on the provider's page.",
     "step2Title": "Pay",
-    "step2Body": "Pay with Pix or card on the secure checkout.",
+    "step2Body": "Pay by card or instant payment on the secure checkout.",
     "step3Title": "Auto-confirm",
     "step3Body": "The booking flips to confirmed the instant payment lands.",
     "browseTitle": "Providers to book",
